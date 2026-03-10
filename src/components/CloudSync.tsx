@@ -33,7 +33,7 @@ export function CloudSync() {
   const [linkSentEmail, setLinkSentEmail] = useState('')
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const { sheetOpen, setSheetOpen, initialLoadComplete } = useCloudSyncStore()
+  const { sheetOpen, setSheetOpen, initialLoadComplete, setSkipNextSave, setLastSaveAt } = useCloudSyncStore()
   const { statuses, selectedDay } = useTrackerStore()
 
   const loadUser = useCallback(async () => {
@@ -61,20 +61,27 @@ export function CloudSync() {
 
   // Auto-save on every change when signed in (debounced 300ms).
   // Must wait for initialLoadComplete so we don't overwrite cloud with stale localStorage on reload.
+  // Skip save when change came from Realtime load (skipNextSave) to prevent save→realtime→save loop.
   useEffect(() => {
     if (!isConfigured() || !user || !initialLoadComplete) return
+    if (useCloudSyncStore.getState().skipNextSave) {
+      setSkipNextSave(false)
+      return
+    }
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
     saveTimeoutRef.current = setTimeout(async () => {
       const result = await saveProgressToCloud()
       if (result.ok) {
+        const now = Date.now()
         setLastSyncedAt(new Date())
+        setLastSaveAt(now)
       }
       saveTimeoutRef.current = null
     }, 300)
     return () => {
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
     }
-  }, [user, initialLoadComplete, statuses, selectedDay])
+  }, [user, initialLoadComplete, statuses, selectedDay, setSkipNextSave, setLastSaveAt])
 
   const handleSignIn = async () => {
     if (!email.trim()) {
@@ -123,7 +130,9 @@ export function CloudSync() {
     const result = await saveProgressToCloud()
     setSyncing(false)
     if (result.ok) {
+      const now = Date.now()
       setLastSyncedAt(new Date())
+      setLastSaveAt(now)
       setMessage({ type: 'success', text: 'সেভ হয়েছে!' })
       setTimeout(() => setMessage(null), 2000)
     } else {

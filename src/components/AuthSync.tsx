@@ -46,9 +46,12 @@ export function AuthSync() {
             table: 'progress',
           },
           () => {
-            // Another browser/tab saved; reload fresh data
+            const store = useCloudSyncStore.getState()
+            const justSaved = store.lastSaveAt && Date.now() - store.lastSaveAt < 3000
+            if (justSaved) return
             loadProgressFromCloud().then((result) => {
               if (result.ok && result.data) {
+                useCloudSyncStore.getState().setSkipNextSave(true)
                 useTrackerStore.setState({
                   statuses: result.data!.statuses,
                   selectedDay: result.data!.selectedDay,
