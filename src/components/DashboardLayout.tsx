@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Sidebar } from './Sidebar'
 import { ActivityTable } from './ActivityTable'
+import { RestoreBanner } from './RestoreBanner'
 import {
   Sheet,
   SheetContent,
@@ -46,6 +47,7 @@ export function DashboardLayout() {
 
       {/* Main content */}
       <main className="flex-1 overflow-auto px-4 py-6 lg:px-8">
+        <RestoreBanner />
         <ActivityTable />
       </main>
     </div>

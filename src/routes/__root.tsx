@@ -3,6 +3,8 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
+import { AuthSync } from '../components/AuthSync'
+import { SyncToast } from '../components/SyncToast'
 import { TooltipProvider } from '../components/ui/tooltip'
 
 import appCss from '../styles.css?url'
@@ -42,9 +44,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-primary/30">
         <TooltipProvider>
+          <AuthSync />
           <Header />
           {children}
           <Footer />
+          <SyncToast />
         </TooltipProvider>
         <TanStackDevtools
           config={{

@@ -3,6 +3,7 @@ import { useTrackerStore } from '#/store/trackerStore'
 import { ACTIVITIES, DAY_DATES } from '#/store/trackerStore'
 import { Progress } from '#/components/ui/progress'
 import ThemeToggle from './ThemeToggle'
+import { CloudSync } from './CloudSync'
 import { Moon } from 'lucide-react'
 
 export default function Header() {
@@ -26,6 +27,7 @@ export default function Header() {
 
         <div className="flex-1 min-w-0" />
 
+        <CloudSync />
         <ThemeToggle />
 
         {/* Progress summary card */}
